@@ -1,18 +1,18 @@
 #pragma once
+#ifndef _OPCDR_MOBILENET_H_
+#define _OPCDR_MOBILENET_H_
 
-#ifndef _OPCDR_RESNET50_H_
-#define _OPCDR_RESNET50_H_
+//using MobileNetDST = float;
 
-//using ResnetDST = float;
 #include <string>
-//Resnet50的最终结果
-class ResnetDST {
+//mobilenet的输出结果类
+class MobileNetDST {
 public:
 	float mScore;
 	std::string mType;
 public:
-	ResnetDST() {}
-	ResnetDST(float score) {
+	MobileNetDST() {}
+	MobileNetDST(float score) {
 		mScore = score;
 		if (mScore > 0.5f) {
 			mType = "HSIL";
@@ -22,7 +22,7 @@ public:
 		}
 	}
 
-	bool operator>(const ResnetDST& result)
+	bool operator>(const MobileNetDST& result)
 	{
 		if (mScore > result.mScore)
 			return true;

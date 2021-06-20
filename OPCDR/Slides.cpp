@@ -3,7 +3,7 @@
 Slides::Slides(std::string hostName, std::string userName, std::string password) :
 	MySqlBase(hostName, userName, password) 
 {
-
+	std::cout << "Table Slides connected" << std::endl;
 }
 
 Slides::~Slides()

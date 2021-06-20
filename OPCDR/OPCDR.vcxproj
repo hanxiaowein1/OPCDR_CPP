@@ -136,7 +136,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_WARNINGS;COMPILER_MSVC;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>Default</LanguageStandard>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,8 +149,13 @@
     <ClInclude Include="AnnoRecommend.h" />
     <ClInclude Include="IniConfig.h" />
     <ClInclude Include="interface.h" />
+    <ClInclude Include="MobileNet.h" />
+    <ClInclude Include="MobileNetTF.h" />
+    <ClInclude Include="MobileNetTR.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Model1.h" />
+    <ClInclude Include="ModelConfig.h" />
+    <ClInclude Include="ModelList.h" />
     <ClInclude Include="ModelRecommend.h" />
     <ClInclude Include="MultiImageRead.h" />
     <ClInclude Include="MySqlBase.h" />
@@ -163,6 +168,7 @@
     <ClInclude Include="TaskThread.h" />
     <ClInclude Include="TFModel.h" />
     <ClInclude Include="TFModel1.h" />
+    <ClInclude Include="TrainConfig.h" />
     <ClInclude Include="TRModel.h" />
     <ClInclude Include="TRModel1.h" />
   </ItemGroup>
@@ -173,6 +179,10 @@
     <ClCompile Include="IniConfig.cpp" />
     <ClCompile Include="interface.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MobileNetTF.cpp" />
+    <ClCompile Include="MobileNetTR.cpp" />
+    <ClCompile Include="ModelConfig.cpp" />
+    <ClCompile Include="ModelList.cpp" />
     <ClCompile Include="ModelRecommend.cpp" />
     <ClCompile Include="MultiImageRead.cpp" />
     <ClCompile Include="Resnet50TF.cpp" />
@@ -180,8 +190,16 @@
     <ClCompile Include="Slides.cpp" />
     <ClCompile Include="TaskThread.cpp" />
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="test_model_efficiency.cpp" />
+    <ClCompile Include="test_read_efficiency.cpp" />
+    <ClCompile Include="test_whole_speed.cpp" />
     <ClCompile Include="TFModel1.cpp" />
+    <ClCompile Include="TrainConfig.cpp" />
     <ClCompile Include="TRModel1.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

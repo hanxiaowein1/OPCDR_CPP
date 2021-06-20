@@ -1,5 +1,6 @@
 #include "MultiImageRead.h"
 
+#include "IniConfig.h"
 MultiImageRead::MultiImageRead(const char* slidePath)
 {
 	m_slidePath = std::string(slidePath);
@@ -45,7 +46,9 @@ void MultiImageRead::task(int i, cv::Rect rect)
 void MultiImageRead::read(std::vector<cv::Rect> rects)
 {
 	std::queue<TaskThread::Task> tasks;
-	int max_thread_num = 2;
+	//int max_thread_num = 2;
+	int max_thread_num = IniConfig::instance().getIniInt("Thread", "MultiImageRead");
+
 	for (int i = 0; i < rects.size(); i++)
 	{
 		cv::Rect rect = rects[i];

@@ -25,6 +25,9 @@
     <Filter Include="源文件\mysql">
       <UniqueIdentifier>{10babe7c-3288-4b83-bed1-b40b748f0ad8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Test">
+      <UniqueIdentifier>{9552aa8b-08ab-4546-a5e4-740ab97df3c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TaskThread.h">
@@ -84,6 +87,24 @@
     <ClInclude Include="Resnet50.h">
       <Filter>头文件\Model</Filter>
     </ClInclude>
+    <ClInclude Include="TrainConfig.h">
+      <Filter>头文件\mysql</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelList.h">
+      <Filter>头文件\mysql</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelConfig.h">
+      <Filter>头文件\mysql</Filter>
+    </ClInclude>
+    <ClInclude Include="MobileNetTF.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="MobileNet.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="MobileNetTR.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TaskThread.cpp">
@@ -131,5 +152,33 @@
     <ClCompile Include="extend_slide_predict.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="test_read_efficiency.cpp">
+      <Filter>源文件\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="test_model_efficiency.cpp">
+      <Filter>源文件\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="test_whole_speed.cpp">
+      <Filter>源文件\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="TrainConfig.cpp">
+      <Filter>源文件\mysql</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelList.cpp">
+      <Filter>源文件\mysql</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelConfig.cpp">
+      <Filter>源文件\mysql</Filter>
+    </ClCompile>
+    <ClCompile Include="MobileNetTF.cpp">
+      <Filter>源文件\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="MobileNetTR.cpp">
+      <Filter>源文件\Model</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
 </Project>

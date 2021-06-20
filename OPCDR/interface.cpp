@@ -53,7 +53,7 @@ void run2(Anno* annos, const char* ini_path, const char* slide, int recom_num, c
 		annos[i].id = i;
 		annos[i].x = result.first.x + result.first.width / 2;
 		annos[i].y = result.first.y + result.first.height / 2;
-		annos[i].score = result.second;
+		annos[i].score = result.second.getScore();
 		mImgRead.getTile(0, result.first.x, result.first.y, result.first.width, result.first.height, img);
 		cv::imwrite(savePathStr + "\\" + std::to_string(i) + ".jpg", img);
 	}
@@ -115,7 +115,7 @@ void run(JavaHandle handle, Anno* annos, MyPoint *topLeft, const char* ini_path,
 		annos[i].id = i;
 		annos[i].x = result.first.x + result.first.width / 2;
 		annos[i].y = result.first.y + result.first.height / 2;
-		annos[i].score = result.second;
+		annos[i].score = result.second.getScore();
 		topLeft[i].x = result.first.x;
 		topLeft[i].y = result.first.y;
 		mImgRead.getTile(0, result.first.x, result.first.y, result.first.width, result.first.height, img);

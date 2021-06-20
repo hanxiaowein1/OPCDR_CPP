@@ -9,6 +9,7 @@
 #include "TaskThread.h"
 #include "PopQueueData.h"
 #include "IniConfig.h"
+
 /*
 	描述基本模型的过程（输入→输出）
 	IN:	模型的输入
@@ -16,20 +17,31 @@
 	SRC:模型的原始输入(cv::Mat等)
 	DST:模型的目标输出(M1Result等)
 */
+
+/// <summary>
+/// 该类用来描述深度学习框架执行模型的基本流程
+/// 图像数据->模型输入->模型输出->最终结果
+/// </summary>
+/// <typeparam name="MLIN">模型的输入</typeparam>
+/// <typeparam name="MLOUT">模型的输出</typeparam>
+/// <typeparam name="SRC">模型的原始输入(cv::Mat等)</typeparam>
+/// <typeparam name="DST">模型的目标输出(float类型的分数等)</typeparam>
 template <typename MLIN, typename MLOUT, typename SRC, typename DST>
 class Model : public PopQueueData<MLIN>
 {
 public:
 	int batchsize = IniConfig::instance().getIniInt("ModelInput", "batchsize");
 public:
+	//将原始输入按照batchsize大小，转换为模型输入，并存储到队列中
 	void pushDataBatch(std::vector<SRC>& src);
 public:
+	//将图像数据转换为模型的输入
 	virtual MLIN SRC2IN(std::vector<SRC>& src) = 0;
-	//针对一个batchsize的数据
+	//利用模型前向推理模型输入，得到模型输出(针对一个batchsize的数据)
 	virtual MLOUT run(MLIN& in) = 0;
-	//针对所有数据
+	//输入图像，得到模型推理图像的最终结果
 	virtual std::vector<DST> run(std::vector<SRC>& src);
-	//针对一个batchsize的数据
+	//将模型输出转换为模型最终结果(针对一个batchsize的数据)
 	virtual std::vector<DST> OUT2DST(MLOUT& out) = 0;
 
 	virtual ~Model();
@@ -65,12 +77,14 @@ std::vector<DST> Model<MLIN, MLOUT, SRC, DST>::run(std::vector<SRC>& src)
 	auto task = std::make_shared<std::packaged_task<void()>>(
 		std::bind(&Model::pushDataBatch, this, std::ref(src)));
 	std::queue<TaskThread::Task> tasks;
+	int modelThread = IniConfig::instance().getIniInt("Thread", "Model");
+	//for(int i )
 	tasks.emplace(
 		[task]() {
 			(*task)();
 		}
 	);
-	TaskThread::enterTask(tasks);
+	TaskThread::enterTask(tasks, modelThread);
 
 	int loopTime = std::ceil(float(src.size()) / float(batchsize));
 	for (int i = 0; i < loopTime; i++)

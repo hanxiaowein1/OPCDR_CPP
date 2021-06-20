@@ -9,25 +9,32 @@
 
 using MIRData = std::pair<cv::Rect, cv::Mat>;
 
+/// <summary>
+/// 多线程读图类，继承自PopQueueData，可以多线程的存储
+/// </summary>
 class MultiImageRead : public PopQueueData<MIRData>
 {
 public:
 	std::string m_slidePath;
+	//全切片图像的handle
 	std::vector<std::unique_ptr<SlideRead>> sReads;
+	//每一个handle的锁
 	std::vector<std::mutex> sRead_mutex;
+	//读取图像的层级
 	std::atomic<int> read_level = 0;
+	//是否进行gamma变换
 	std::atomic<bool> gamma_flag = true;
 	int m_threadnum;
 public:
 	MultiImageRead(const char* slidePath);
 	~MultiImageRead();
-
+	//创建读图的handle
 	void createReadHandle(int num);
-
+	//gamma变换
 	void gammaCorrection(cv::Mat& src, cv::Mat& dst, float fGamma);
-
+	//利用第i个handle，在切片图像中读取rect区域的图像
 	void task(int i, cv::Rect rect);
-
+	//新增读图任务
 	void read(std::vector<cv::Rect> rects);
 
 public:

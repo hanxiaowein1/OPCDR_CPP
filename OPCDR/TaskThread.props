@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>D:\Programmer\C++\LibraryPersonal\MD5\MD5;D:\Programmer\C++\LibraryPersonal\MyTime\MyTime;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Programmer\C++\LibraryPersonal\MD5\x64\Release;D:\Programmer\C++\LibraryPersonal\MyTime\x64\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Programmer\C++\LibraryPersonal\Library\MD5;D:\Programmer\C++\LibraryPersonal\Library\MyTime;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Programmer\C++\LibraryPersonal\Library\x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

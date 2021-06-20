@@ -18,6 +18,8 @@ void tfTest()
 	TaskThread task_thread;
 	task_thread.createThreadPool(3);
 
+	std::string iniPath = "./config.ini";
+	setIniPath(iniPath);
 
 	_putenv_s("CUDA_VISIBLE_DEVICES", "0");
 	TFConfig tfconfig;
@@ -40,7 +42,11 @@ void tfTest()
 	std::vector<cv::Mat> imgs;
 	imgs.emplace_back(img);
 	auto m1result = model->run(imgs);
+	std::cout << m1result.size() << std::endl;
 
+
+
+	delete model;
 }
 
 void trTest()
@@ -126,7 +132,7 @@ void wholeSlideTest()
 		cv::Mat img;
 		auto result = results[i];
 		mImgRead.getTile(0, result.first.x, result.first.y, result.first.width, result.first.height, img);
-		cv::imwrite(std::to_string(i) + "_" + std::to_string(result.second) + ".tif", img);
+		cv::imwrite(std::to_string(i) + "_" + std::to_string(result.second.getScore()) + ".tif", img);
 	}
 }
 
@@ -160,19 +166,4 @@ auto runWithSlidePredict(SlidePredict<MLIN, MLOUT, SRC, DST>* slidePredict, Mult
 //}
 //
 //
-//void testResnet50TR()
-//{
-//	setIniPath("./config.ini");
-//	TaskThread taskThread;
-//	taskThread.createThreadPool(8);
-//	_putenv_s("CUDA_VISIBLE_DEVICES", "0");
-//	TRConfig trConfig("./config.ini");
-//	MultiImageRead mImgRead("D:\\TEST_DATA\\rnnPredict\\052800092.srp");
-//	mImgRead.createReadHandle(2);
-//	auto slidePredict = getSlidePredict(new Resnet50TR(trConfig));
-//	slidePredict->modelHeight = 256;
-//	slidePredict->modelWidth = 256;
-//	slidePredict->modelMpp = 0.293f;
-//	auto result = runWithSlidePredict(slidePredict, mImgRead);
-//	std::cout << "111" << std::endl;
-//}
+

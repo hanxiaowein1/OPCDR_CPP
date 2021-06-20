@@ -5,19 +5,30 @@
 
 #include "TaskThread.h"
 
+/// <summary>
+/// 多线程安全队列
+/// </summary>
+/// <typeparam name="T">队列中数据格式</typeparam>
 template <typename T>
 class PopQueueData : public TaskThread
 {
 public:
+	//数据队列	
 	std::queue<T> data_queue;
+	//数据队列互斥量
 	std::mutex data_mutex;
+	//数据队列条件变量
 	std::condition_variable data_cv;
 public:
 	void popQueueWithoutLock(std::vector<T>& pop_datas);
 	void popQueueWithoutLock(T& pop_data);
+	//弹出数据队列中所有的数据
 	bool popData(std::vector<T>& pop_datas);
+	//弹出数据队列的单个数据
 	bool popData(T& pop_data);
+	//进队
 	void pushData(std::vector<T>& push_datas);
+	//进队
 	void pushData(T& push_data);
 	virtual ~PopQueueData();
 };

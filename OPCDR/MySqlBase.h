@@ -20,16 +20,23 @@
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
 #include <cppconn/prepared_statement.h>
+#include "IniConfig.h"
 
+/// <summary>
+/// mysql数据库的基类，用来连接数据库
+/// </summary>
+/// <typeparam name="TableAttr">表的字段</typeparam>
 template <typename TableAttr>
 class MySqlBase
 {
 public:
-    sql::Driver* driver;
+    sql::Driver* driver;//这个以后可以改成static shared_ptr，因为全局只需要一个数据库连接
     sql::Connection* con;
 
 public:
-    std::string schema = "das";
+    //std::string schema = "opcdr";
+    //选择的数据库
+    std::string schema = IniConfig::instance().getIniString("Database", "schema");
 
 public:
     MySqlBase() = delete;

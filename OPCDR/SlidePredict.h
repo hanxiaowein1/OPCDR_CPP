@@ -5,6 +5,7 @@
 #include "Model.h"
 #include "MultiImageRead.h"
 #include "TaskThread.h"
+#include <chrono>
 
 struct SlideInfo
 {
@@ -25,24 +26,35 @@ public:
 public:
 	SlidePredict(Model<MLIN, MLOUT, SRC, DST>* inModel);
 	~SlidePredict();
+	//使用模型对整张切片推理，得到推理结果。
 	std::vector<std::pair<cv::Rect, DST>> run(MultiImageRead& mImgRead);
 	int modelHeight;
 	int modelWidth;
 	float modelMpp;
-private:
-	bool initialize_binImg(MultiImageRead& mImgRead);
-	void threshold_segmentation(cv::Mat& img, cv::Mat& binImg, int level, int thre_col, int thre_vol);
-	void remove_small_objects(cv::Mat& binImg, int thre_vol);
-	bool iniPara(MultiImageRead& mImgRead);
-	std::vector<cv::Rect> get_rects_slide();
-	void pushData(MultiImageRead& mImgRead);
-	std::vector<cv::Rect> iniRects(int sHeight, int sWidth, int height, int width, int overlap, bool flag_right, bool flag_down, int& rows, int& cols);
-	void sort(std::vector<std::pair<cv::Rect, DST>>& results);
-private:
-	float model1OverlapRatio = 0.25f;
 	int slideHeight;
 	int slideWidth;
 	double slideMpp;
+
+private:
+	//初始化高level的切片图像
+	bool initialize_binImg(MultiImageRead& mImgRead);
+	//对高level图像前景分割
+	void threshold_segmentation(cv::Mat& img, cv::Mat& binImg, int level, int thre_col, int thre_vol);
+	//去除前景分割的较小区域
+	void remove_small_objects(cv::Mat& binImg, int thre_vol);
+	//初始化读图level，切片的宽高、mpp等参数
+	bool iniPara(MultiImageRead& mImgRead);
+	//初始化读取大块图像的框
+	std::vector<cv::Rect> get_rects_slide();
+	//将从切片图像中读取的数据多线程地push到队列中
+	void pushData(MultiImageRead& mImgRead);
+	//原始的读取小块图像的框
+	std::vector<cv::Rect> iniRects(int sHeight, int sWidth, int height, int width, int overlap, bool flag_right, bool flag_down, int& rows, int& cols);
+	//对推荐结果进行排序
+	void sort(std::vector<std::pair<cv::Rect, DST>>& results);
+private:
+	float model1OverlapRatio = 0.25f;
+	
 	//裁取的宽高信息
 	int block_height = 8192;
 	int block_width = 8192;//在第0图层读取的图像的大小
@@ -71,20 +83,56 @@ SlidePredict<MLIN, MLOUT, SRC, DST>::~SlidePredict()
 template <typename MLIN, typename MLOUT, typename SRC, typename DST>
 std::vector<std::pair<cv::Rect, DST>> SlidePredict<MLIN, MLOUT, SRC, DST>::run(MultiImageRead& mImgRead)
 {
+	using namespace std::chrono;
+	std::vector<std::pair<cv::Rect, DST>> ret;
 	iniPara(mImgRead);
 	initialize_binImg(mImgRead);
 	mImgRead.setReadLevel(read_level);
 	std::vector<cv::Rect> rects = get_rects_slide();
-	if (rects.size() > 20)
-	{
-		rects.erase(rects.begin() + 20, rects.end());
-	}
+	//if (rects.size() > 20)
+	//{
+	//	rects.erase(rects.begin() + 20, rects.end());
+	//}
 	mImgRead.read(rects);
+
 	int temp_cols = 0;
 	int temp_rows = 0;
+	std::vector<cv::Rect> rects2 = iniRects(
+		modelHeight * float(modelMpp / slideMpp),
+		modelWidth * float(modelMpp / slideMpp),
+		slideHeight,
+		slideWidth,
+		(0.25f * modelHeight) * float(modelMpp / slideMpp),
+		true,
+		true,
+		temp_rows,
+		temp_cols
+	);
+	////if (rects2.size() > 1000) {
+	////	rects2.erase(rects2.begin() + 1000, rects2.end());
+	////}
+	//int totalCount = rects2.size();
+	//int count = 0;
+	//mImgRead.read(rects2);
+
+	//std::vector<std::pair<cv::Rect, cv::Mat>> tempRectMats;
+	//auto start = system_clock::now();
+	//while (mImgRead.popData(tempRectMats)) {
+	//	count = count + tempRectMats.size();
+	//	std::cout << count << "/" << totalCount << ", ";
+	//	std::cout << float(count)/ float(totalCount)<< "%" << std::endl;
+	//	tempRectMats.clear();
+	//}
+	//auto end = system_clock::now();
+	//auto duration = duration_cast<microseconds>(end - start);
+	//std::cout << "花费了"
+	//<< double(duration.count()) * microseconds::period::num / microseconds::period::den
+	//<< "秒" << endl;
+	//return ret;
 
 	//使用陷阱，绝对不能先使用key，否则multi_tasks里面会遍历到这个key，然后发现没有任务就把他给删了。。。
-	int max_thread_num = 2;
+	//也就是说使用key的时候一定要确保这个key对应的任务队列里面已经被初始化任务了
+	int max_thread_num = IniConfig::instance().getIniInt("Thread", "SlidePredict");
 	std::queue<TaskThread::Task> tasks;
 	for (int i = 0; i < max_thread_num; i++)
 	{
@@ -99,9 +147,17 @@ std::vector<std::pair<cv::Rect, DST>> SlidePredict<MLIN, MLOUT, SRC, DST>::run(M
 	TaskThread::enterTask(tasks, max_thread_num);
 
 	std::vector<std::pair<cv::Rect, cv::Mat>> rectMats;
-	std::vector<std::pair<cv::Rect, DST>> ret;
+
+	auto start = system_clock::now();
+	int totalCount = rects2.size();
+	int count = 0;
 	while (PopQueueData<std::pair<cv::Rect, cv::Mat>>::popData(rectMats))
 	{
+		count = count + rectMats.size();
+		std::cout << count << "/" << totalCount << ", ";
+		std::cout << float(count) / float(totalCount) << "%" << std::endl;
+		//rectMats.clear();
+
 		std::vector<cv::Mat> input_imgs;
 		std::vector<cv::Rect> input_rects;
 		for (auto iter = rectMats.begin(); iter != rectMats.end(); iter++)
@@ -111,7 +167,6 @@ std::vector<std::pair<cv::Rect, DST>> SlidePredict<MLIN, MLOUT, SRC, DST>::run(M
 		}
 		std::vector<DST> results;
 		results = model->run(input_imgs);
-		//std::cout << results.size() << std::endl;
 		std::vector<std::pair<cv::Rect, DST>> final_results;
 		for (auto iter = results.begin(); iter != results.end(); iter++)
 		{
@@ -127,8 +182,12 @@ std::vector<std::pair<cv::Rect, DST>> SlidePredict<MLIN, MLOUT, SRC, DST>::run(M
 		ret.insert(ret.end(), final_results.begin(), final_results.end());
 
 		rectMats.clear();
-		//std::cout << ret.size() << std::endl;
 	}
+	auto end = system_clock::now();
+	auto duration = duration_cast<microseconds>(end - start);
+	cout << "模型花费了"
+		<< double(duration.count()) * microseconds::period::num / microseconds::period::den
+		<< "秒" << endl;
 	sort(ret);
 	return ret;
 }
@@ -303,11 +362,13 @@ void SlidePredict<MLIN, MLOUT, SRC, DST>::pushData(MultiImageRead& mImgRead)
 					rect.height = modelHeight;
 					rectMat.first = rect;
 					rectMat.second = iter->second(*iter2);
+					cv::resize(rectMat.second, rectMat.second, cv::Size(modelWidth, modelHeight));
 					rectMats.emplace_back(std::move(rectMat));
 					continue;
 				}
 				cv::Mat cropMat = binImg(rectCrop);
 				int cropSum = cv::sum(cropMat)[0];
+				//如果前景区域的有效面积小于阈值，该图像不进行计算
 				if (cropSum <= m_crop_sum * 255)
 				{
 					continue;
@@ -386,15 +447,29 @@ std::vector<cv::Rect> SlidePredict<MLIN, MLOUT, SRC, DST>::iniRects(
 template <typename MLIN, typename MLOUT, typename SRC, typename DST>
 bool SlidePredict<MLIN, MLOUT, SRC, DST>::initialize_binImg(MultiImageRead& mImgRead)
 {
-	int heightL4 = 0;
-	int widthL4 = 0;
-	mImgRead.getLevelDimensions(levelBin, widthL4, heightL4);
-	if (widthL4 == 0 || heightL4 == 0) {
-		std::cout << "get L4 image failed\n";
-		return false;
+	std::string slidePath = mImgRead.m_slidePath;
+	std::string suffix = getFileNameSuffix(slidePath);
+	if (suffix == "mrxs")
+	{
+		int openslide_heightL4 = slideHeight / std::pow(slideRatio, levelBin);
+		int openslide_widthL4 = slideWidth / std::pow(slideRatio, levelBin);
+		if (openslide_widthL4 == 0 || openslide_heightL4 == 0) {
+			std::cout << "get L4 image failed\n";
+			return false;
+		}
+		mImgRead.getTile(levelBin, 0, 0, openslide_widthL4, openslide_heightL4, thumbnail);
 	}
-	//cv::Mat imgL4;
-	mImgRead.getTile(levelBin, 0, 0, widthL4, heightL4, thumbnail);
+	else {
+		int heightL4 = 0;
+		int widthL4 = 0;
+		mImgRead.getLevelDimensions(levelBin, widthL4, heightL4);
+
+		if (widthL4 == 0 || heightL4 == 0) {
+			std::cout << "get L4 image failed\n";
+			return false;
+		}
+		mImgRead.getTile(levelBin, 0, 0, widthL4, heightL4, thumbnail);
+	}
 	threshold_segmentation(thumbnail, binImg, levelBin, m_thre_col, m_thre_vol);
 	return true;
 }

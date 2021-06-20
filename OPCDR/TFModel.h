@@ -28,6 +28,9 @@
 #include "IniConfig.h"
 #include "commonFunction.h"
 
+/// <summary>
+/// 根据配置文件初始化tensorflow的模型配置
+/// </summary>
 class TFConfig 
 {
 public:
@@ -37,6 +40,9 @@ public:
 	int height;
 	int width;
 	int channel;
+	int batchsize;
+	//使用的是哪一个模型
+	std::string modelname;
 public:
 	TFConfig() {}
 	TFConfig(const char* ini_path)
@@ -47,13 +53,45 @@ public:
 		modelPath = IniConfig::instance().getIniString("ModelProperty", "path");
 		inputName = IniConfig::instance().getIniString("ModelProperty", "input");
 		std::string temp = IniConfig::instance().getIniString("ModelProperty", "output");
+		batchsize = IniConfig::instance().getIniInt("ModelInput", "batchsize");
 		outputName = split(temp, ',');
 	}
 
+	TFConfig(const char* iniPath, std::string name)
+	{
+		modelname = name;
+		if (modelname == "resnet50") {
+			height = IniConfig::instance().getIniInt("Resnet50", "height");
+			width = IniConfig::instance().getIniInt("Resnet50", "width");
+			channel = IniConfig::instance().getIniInt("Resnet50", "channel");
+			batchsize = IniConfig::instance().getIniInt("Resnet50", "batchsize");
+
+			modelPath = IniConfig::instance().getIniString("Resnet50TF", "path");
+			inputName = IniConfig::instance().getIniString("Resnet50TF", "input");
+			std::string temp = IniConfig::instance().getIniString("Resnet50TF", "output");
+			outputName = split(temp, ',');
+		}
+		if (modelname == "mobilenet") {
+			height = IniConfig::instance().getIniInt("MobileNet", "height");
+			width = IniConfig::instance().getIniInt("MobileNet", "width");
+			channel = IniConfig::instance().getIniInt("MobileNet", "channel");
+			batchsize = IniConfig::instance().getIniInt("MobileNet", "batchsize");
+
+			modelPath = IniConfig::instance().getIniString("MobileNetTF", "path");
+			inputName = IniConfig::instance().getIniString("MobileNetTF", "input");
+			std::string temp = IniConfig::instance().getIniString("MobileNetTF", "output");
+			outputName = split(temp, ',');
+		}
+	}
 };
 
 //typename tensorflow::Tensor tt;
 
+/// <summary>
+/// 继承自Model类，实现了Model类中的SRC2IN()和run()函数
+/// </summary>
+/// <typeparam name="DST">模型的最终结果</typeparam>
+/// <param name="tfconfig">tensorflow 配置</param>
 template<typename DST>
 class TFModel : public Model<tensorflow::Tensor, std::vector<tensorflow::Tensor>, cv::Mat, DST>
 {

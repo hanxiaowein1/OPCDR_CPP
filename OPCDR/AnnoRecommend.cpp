@@ -3,6 +3,7 @@
 AnnoRecommend::AnnoRecommend(std::string hostName, std::string userName, std::string password) : 
 	MySqlBase(hostName, userName, password)
 {
+	std::cout << "Table AnnoRecommend connected" << std::endl;
 }
 
 AnnoRecommend::~AnnoRecommend()

@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IncludePath>D:\Programmer\C++\LibraryPersonal\SlideFactory\SlideFactory;D:\ThirdParty\opencv341\build\include;D:\libraryBuild\SdpcSDK\SdpcSDK;D:\libraryBuild\openslide-win64-20201024-local\include\openslide;D:\Programmer\C++\LibraryPersonal\Library\Common;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\ThirdParty\opencv341\build\x64\vc14\lib;D:\libraryBuild\SdpcSDK\x64\Release;D:\libraryBuild\openslide-win64-20201024-local\lib;D:\Programmer\C++\LibraryPersonal\SlideFactory\x64\Release;D:\Programmer\C++\LibraryPersonal\Common\x64\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\ThirdParty\opencv341\build\x64\vc14\lib;D:\libraryBuild\SdpcSDK\x64\Release;D:\libraryBuild\openslide-win64-20201024-local\lib;D:\Programmer\C++\LibraryPersonal\SlideFactory\x64\Release;D:\Programmer\C++\LibraryPersonal\Library\x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

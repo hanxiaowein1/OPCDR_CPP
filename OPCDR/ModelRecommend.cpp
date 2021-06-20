@@ -2,6 +2,7 @@
 
 ModelRecommend::ModelRecommend(std::string hostName, std::string userName, std::string password) : MySqlBase(hostName, userName, password)
 {
+	std::cout << "Table ModelRecommend connected" << std::endl;
 }
 
 ModelRecommend::~ModelRecommend()

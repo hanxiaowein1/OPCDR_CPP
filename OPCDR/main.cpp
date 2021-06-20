@@ -95,24 +95,25 @@ int main4()
 extern void computeSlideInDatabase2(std::string iniPath);
 
 //直接利用线程进行计算数据库里面的切片
-int main(int argc, char** argv)
-{
-	using namespace std;
-	std::string config_path = "";
-	switch (argc) {
-	case 1:
-		config_path = "./config.ini";
-		break;
-	case 2:
-		config_path = argv[1];
-		break;
-	default:
-		std::cout << "please check your parameter\n";
-	}
-	computeSlideInDatabase2(config_path);
-	//system("pause");
-	return 0;
-}
+//int main(int argc, char** argv)
+//{
+//	using namespace std;
+//	std::string config_path = "";
+//	switch (argc) {
+//	case 1:
+//		config_path = "./config.ini";
+//		break;
+//	case 2:
+//		config_path = argv[1];
+//		break;
+//	default:
+//		std::cout << "please check your parameter\n";
+//	}
+//	std::cout << "config path: " << config_path << std::endl;
+//	computeSlideInDatabase2(config_path);
+//	//system("pause");
+//	return 0;
+//}
 
 int main2()
 {
